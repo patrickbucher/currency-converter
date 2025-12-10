@@ -1,8 +1,5 @@
+import { err } from "./http.ts";
 import { routes } from "./routing.ts";
-
-const responseHeaders = {
-  "content-type": "application/json; charset=utf-8",
-};
 
 Deno.serve((req) => {
   const url = new URL(req.url);
@@ -15,15 +12,9 @@ Deno.serve((req) => {
       continue;
     }
     if (!authenticate(req)) {
-      return new Response(JSON.stringify({ message: "UNAUTHORIZED" }), {
-        status: 401,
-        headers: responseHeaders,
-      });
+      return err({ message: "UNAUTHORIZED" }, 401);
     }
     return handle(req, capture(match));
   }
-  return new Response(JSON.stringify({ message: "NOT FOUND" }), {
-    status: 404,
-    headers: responseHeaders,
-  });
+  return err({ message: `${url} NOT FOUND` }, 404);
 });
